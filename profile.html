@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <script defer src="aaaa.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@48,400,0,0" />
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+   <div class="container">
+      <aside>
+         <div class="top">
+           <div class="logo">
+             <h2><img src="logo.png" alt="Logo"><span class="danger">FAMBUDGET</span> </h2>
+           </div>
+           <div class="close" id="close_btn">
+            <span class="material-symbols-sharp">close</span>
+           </div>
+         </div>
+         
+         <div class="sidebar">
+            <a href="dashboard.html" class="sideoptions">
+              <span class="material-symbols-sharp">grid_view</span>
+              <h3>Main Page</h3>
+           </a>
+           <a href="family.html" class="sideoptions">
+              <span class="material-symbols-sharp">person_outline</span>
+              <h3>Family</h3>
+           </a>
+           <a href="analytics.html" class="sideoptions">
+              <span class="material-symbols-sharp">insights</span>
+              <h3>Analytics</h3>
+           </a>
+           
+           <a href="budget.html" class="sideoptions">
+              <span class="material-symbols-sharp">receipt_long</span>
+              <h3>Budget</h3>
+           </a>
+           <a href="#" class="sideoptions">
+              <span class="material-symbols-sharp">report_gmailerrorred</span>
+              <h3>Upcoming Bills</h3>
+           </a>
+           <a href="settings.html" class="sideoptions">
+              <span class="material-symbols-sharp">settings</span>
+              <h3>Settings</h3>
+           </a>
+           <a href="profile.html" class="sideoptions">
+            <span class="material-symbols-sharp">person</span>
+            <h3>Profile</h3>
+          </a>
+          <a href="#" onclick="confirmLogout(event)">
+            <span class="material-symbols-sharp">logout</span>
+            <h3>Logout</h3>
+          </a>
+          
+          <script>
+            function confirmLogout(event) {
+              event.preventDefault(); // Prevent default action
+              if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "logout.php"; // Redirect to logout.php
+              }
+            }
+          </script>
+         </div>
+      </aside>
+
+
+      <main>
+        <h1>Profile Settings</h1>
+<div class="profile-settings">
+
+    <!-- Display User Information -->
+    <div class="user-info">
+        <h2>User Information</h2>
+        <div class="info">
+            <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+            <p><strong>Bio:</strong> <span id="userBio">Loading...</span></p>
+            <button id="editBtn" onclick="enableEdit()">Edit</button>
+        </div>
+    </div>
+
+    <!-- Update Profile Section -->
+    <div id="updateProfileSection" style="display:none;">
+        <h2>Update Profile</h2>
+        <form id="updateProfileForm" enctype="multipart/form-data">
+            <label for="userNameInput">Name:</label>
+            <input type="text" id="userNameInput" name="userName" required>
+
+            <label for="userEmailInput">Email:</label>
+            <input type="email" id="userEmailInput" name="userEmail" required>
+
+            <label for="userBioInput">Bio:</label>
+            <textarea id="userBioInput" name="userBio"></textarea>
+
+            <label for="profilePictureInput">Profile Picture:</label>
+            <input type="file" id="profilePictureInput" name="profilePicture">
+
+            <button type="submit" class="submit-btn">Update Profile</button>
+        </form>
+    </div><br><br>
+
+    <!-- Change Password Section -->
+    <div class="change-password">
+        <h2>Change Password</h2>
+        <form id="changePasswordForm">
+            <label for="current-password">Current Password:</label>
+            <input type="password" id="current-password" name="current-password" required>
+
+            <label for="new-password">New Password:</label>
+            <input type="password" id="new-password" name="new-password" required>
+
+            <label for="confirm-password">Confirm New Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+
+            <button type="submit" class="submit-btn">Change Password</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Fetch the current user's information on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('get_user_profile.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('userName').textContent = data.name;
+                    document.getElementById('userEmail').textContent = data.email;
+                    document.getElementById('userBio').textContent = data.bio;
+                    document.querySelector('.profile-photo img').src = data.profile_picture; // Set the profile picture dynamically
+                } else {
+                    alert('Error fetching user profile data.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Function to enable editing the profile
+    function enableEdit() {
+        const name = document.getElementById('userName').textContent;
+        const email = document.getElementById('userEmail').textContent;
+        const bio = document.getElementById('userBio').textContent;
+
+        document.getElementById('userNameInput').value = name;
+        document.getElementById('userEmailInput').value = email;
+        document.getElementById('userBioInput').value = bio;
+
+        document.getElementById('updateProfileSection').style.display = 'block';
+        document.querySelector('.user-info').style.display = 'none';
+    }
+
+    // Handle form submission for updating the profile
+    document.getElementById('updateProfileForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('update_profile.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Profile updated successfully!');
+                location.reload();
+            } else {
+                alert('Failed to update profile: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Handle form submission for changing the password
+    document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        const data = {
+            'current-password': currentPassword,
+            'new-password': newPassword,
+            'confirm-password': confirmPassword
+        };
+
+        fetch('changePassword.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Password changed successfully!');
+            } else {
+                alert('Error changing password: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+</html>

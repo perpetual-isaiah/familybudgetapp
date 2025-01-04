@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@48,400,0,0" />
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+   <div class="container">
+      <aside>
+        <div class="top">
+          <div class="logo">
+            <h2><span id="logo1" class="material-symbols-sharp">diversity_3 </span><span class="danger">FAMBUDGET</span> </h2>
+          </div>
+          <div class="close" id="close_btn">
+           <span class="material-symbols-sharp">
+             close
+             </span>
+          </div>
+        </div>
+        <div class="sidebar">
+          <a href="dashboard.html" class="sideoptions">
+            <span class="material-symbols-sharp">grid_view </span>
+            <h3>Main Page</h3>
+          </a>
+          <a href="family.html" class="sideoptions">
+            <span class="material-symbols-sharp">person_outline </span>
+            <h3>Family</h3>
+          </a>
+          <a href="analytics.html" class="sideoptions">
+            <span class="material-symbols-sharp">insights </span>
+            <h3>Analytics</h3>
+          </a>
+          <a href="budget.html" class="sideoptions">
+            <span class="material-symbols-sharp">receipt_long</span>
+            <h3>Budget</h3>
+          </a>
+          <a href="Approaching.html" class="sideoptions">
+            <span class="material-symbols-sharp">report_gmailerrorred </span>
+            <h3>Notifications</h3>
+          </a>
+          <a href="settings.html" class="sideoptions">
+            <span class="material-symbols-sharp">settings </span>
+            <h3>Settings</h3>
+          </a>
+          <a href="profile.html" class="sideoptions">
+            <span class="material-symbols-sharp">person</span>
+            <h3>Profile</h3>
+          </a>
+          <a href="#" onclick="confirmLogout(event)">
+            <span class="material-symbols-sharp">logout</span>
+            <h3>Logout</h3>
+          </a>
+          
+          <script>
+            function confirmLogout(event) {
+              event.preventDefault(); // Prevent default action
+              if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "logout.php"; // Redirect to logout.php
+              }
+            }
+          </script>
+        </div>
+      </aside>
+      
+      <main>
+        <!-- Budget Form Section -->
+        <div class="budget-container">
+          <h2>Create Your Budget</h2>
+          <button id="createBudgetBtn">Create Budget</button>
+          
+          <!-- Form to create or edit a budget -->
+          <div id="budgetForm" style="display: none;">
+            <form id="budgetFormDetails">
+              <div class="form-group">
+                <label for="budget_name">Budget Name/Category</label>
+                <input type="text" id="budget_name" name="budget_name" required>
+              </div>
+              <div class="form-group">
+                <label for="monthly_limit">Monthly Limit</label>
+                <input type="number" id="monthly_limit" name="monthly_limit" required>
+              </div>
+              <div class="form-group">
+                <label for="savings">Savings</label>
+                <input type="number" id="savings" name="savings" required>
+              </div>
+              <div class="form-group">
+                <label for="reminder_date">Reminder Date</label>
+                <input type="date" id="reminder_date" name="reminder_date" required>
+              </div>
+              <div class="form-group">
+                <label for="reminder_threshold">Reminder Threshold</label>
+                <input type="number" id="reminder_threshold" name="reminder_threshold" required>
+              </div>
+              <button type="submit" class="submit-btn">Create Budget</button>
+            </form>
+          </div>
+
+          <!-- Budget List -->
+          <div id="budgetList">
+            <h3>Your Budgets:</h3>
+            <ul id="budgetItems">
+              <!-- Budget items will be dynamically populated here -->
+            </ul>
+          </div>
+        </div>
+      </main>
+
+   </div>
+
+   <script>
+     // Handle the 'Create Budget' button click
+     document.getElementById('createBudgetBtn').addEventListener('click', function() {
+         document.getElementById('budgetForm').style.display = 'block'; // Show the form
+     });
+
+     // Handle the budget form submission (Create or Edit)
+     document.getElementById('budgetFormDetails').addEventListener('submit', function(event) {
+         event.preventDefault();
+         
+         const budgetName = document.getElementById('budget_name').value;
+         const monthlyLimit = document.getElementById('monthly_limit').value;
+         const savings = document.getElementById('savings').value;
+         const reminderDate = document.getElementById('reminder_date').value;
+         const reminderThreshold = document.getElementById('reminder_threshold').value;
+
+         const formData = new FormData();
+         formData.append('budget_name', budgetName);
+         formData.append('monthly_limit', monthlyLimit);
+         formData.append('savings', savings);
+         formData.append('reminder_date', reminderDate);
+         formData.append('reminder_threshold', reminderThreshold);
+
+         fetch('budget.php', {
+             method: 'POST',
+             body: formData
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 alert('Budget created successfully!');
+                 loadBudgets(); // Reload the budget list
+         //document.getElementById('budgetForm').reset(); // Reset the form
+             } else {
+                 alert('Error: ' + data.message);
+             }
+         })
+         .catch(error => {
+             alert('Error: ' + error.message);
+         });
+     });
+
+     // Load the existing budgets when the page loads
+     function loadBudgets() {
+         fetch('load_budgets.php')
+             .then(response => response.json())
+             .then(data => {
+                 const budgetItems = document.getElementById('budgetItems');
+                 budgetItems.innerHTML = ''; // Clear the current list
+                 data.budgets.forEach(budget => {
+                     const li = document.createElement('li');
+                     li.textContent = `${budget.budget_name} - Monthly Limit: ${budget.monthly_limit}`;
+                     const editButton = document.createElement('button');
+                     editButton.textContent = 'Edit';
+                     editButton.addEventListener('click', function() {
+                         editBudget(budget.id);
+                     });
+                     li.appendChild(editButton);
+                     budgetItems.appendChild(li);
+                 });
+             })
+             .catch(error => alert('Error: ' + error));
+     }
+
+     // Edit a specific budget
+     function editBudget(budgetId) {
+         // Fetch the budget data for the specified budgetId
+         fetch(`get_budget.php?id=${budgetId}`)
+             .then(response => response.json())
+             .then(data => {
+                 const budget = data.budget;
+                 document.getElementById('budget_name').value = budget.budget_name;
+                 document.getElementById('monthly_limit').value = budget.monthly_limit;
+                 document.getElementById('savings').value = budget.savings;
+                 document.getElementById('reminder_date').value = budget.reminder_date;
+                 document.getElementById('reminder_threshold').value = budget.reminder_threshold;
+                 document.getElementById('budgetForm').style.display = 'block'; // Show the form
+             })
+             .catch(error => alert('Error: ' + error));
+     }
+
+     // Load the budgets when the page loads
+     loadBudgets();
+   </script>
+
+</body>
+</html>
