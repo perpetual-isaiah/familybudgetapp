@@ -10,7 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id']; // Retrieve the logged-in user's ID
 
-$query = "SELECT * FROM budget WHERE user_id = ?";
+// Modify the query to limit to 5 records and order by created_at in descending order
+$query = "SELECT * FROM budget WHERE user_id = ? ORDER BY date_created DESC LIMIT 5";
 $stmt = $db->prepare($query);
 $stmt->bind_param('i', $userId);
 $stmt->execute();
