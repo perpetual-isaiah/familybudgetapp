@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
+  <title>Budget</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@48,400,0,0" />
   <link rel="stylesheet" href="dashboard.css">
 </head>
@@ -13,37 +13,35 @@
       <aside>
         <div class="top">
           <div class="logo">
-            <h2><span id="logo1" class="material-symbols-sharp">diversity_3 </span><span class="danger">FAMBUDGET</span> </h2>
+            <h2><span id="logo1" class="material-symbols-sharp">diversity_3 </span><span class="danger">FAMBUDGET</span></h2>
           </div>
           <div class="close" id="close_btn">
-           <span class="material-symbols-sharp">
-             close
-             </span>
+           <span class="material-symbols-sharp">close</span>
           </div>
         </div>
         <div class="sidebar">
           <a href="dashboard.html" class="sideoptions">
-            <span class="material-symbols-sharp">grid_view </span>
+            <span class="material-symbols-sharp">grid_view</span>
             <h3>Main Page</h3>
           </a>
           <a href="family.html" class="sideoptions">
-            <span class="material-symbols-sharp">person_outline </span>
+            <span class="material-symbols-sharp">person_outline</span>
             <h3>Family</h3>
           </a>
           <a href="analytics.html" class="sideoptions">
-            <span class="material-symbols-sharp">insights </span>
+            <span class="material-symbols-sharp">insights</span>
             <h3>Analytics</h3>
           </a>
-          <a href="budget.html" class="sideoptions">
+          <a href="budget.html" class="sideoptions active">
             <span class="material-symbols-sharp">receipt_long</span>
             <h3>Budget</h3>
           </a>
-          <a href="Approaching.html" class="sideoptions">
-            <span class="material-symbols-sharp">report_gmailerrorred </span>
+          <a href="approaching.html" class="sideoptions">
+            <span class="material-symbols-sharp">report_gmailerrorred</span>
             <h3>Notifications</h3>
           </a>
           <a href="settings.html" class="sideoptions">
-            <span class="material-symbols-sharp">settings </span>
+            <span class="material-symbols-sharp">settings</span>
             <h3>Settings</h3>
           </a>
           <a href="profile.html" class="sideoptions">
@@ -57,9 +55,9 @@
           
           <script>
             function confirmLogout(event) {
-              event.preventDefault(); // Prevent default action
+              event.preventDefault();
               if (confirm("Are you sure you want to log out?")) {
-                window.location.href = "logout.php"; // Redirect to logout.php
+                window.location.href = "logout.php";
               }
             }
           </script>
@@ -70,9 +68,9 @@
         <!-- Budget Form Section -->
         <div class="budget-container">
           <h2>Create Your Budget</h2>
-          <button id="createBudgetBtn">Create Budget</button>
+          <button id="createBudgetBtn" class="action-button">Create Budget</button>
           
-          <!-- Form to create or edit a budget -->
+          <!-- Budget Form -->
           <div id="budgetForm" style="display: none;">
             <form id="budgetFormDetails">
               <div class="form-group">
@@ -99,28 +97,39 @@
             </form>
           </div>
 
-          <!-- Budget List -->
-          <div id="budgetList">
-            <h3>Your Budgets:</h3>
-            <ul id="budgetItems">
-              <!-- Budget items will be dynamically populated here -->
-            </ul>
+          <!-- View Budget -->
+          <div class="recent_order">
+            <h2>Your Budgets</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Budget Name</th>
+                  <th>Monthly Limit</th>
+                  <th>Savings</th>
+                  <th>Reminder Date</th>
+                  <th>Reminder Threshold</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="budgetTableBody">
+                <!-- Dynamic rows will be populated here -->
+              </tbody>
+            </table>
           </div>
         </div>
       </main>
-
    </div>
 
    <script>
      // Handle the 'Create Budget' button click
-     document.getElementById('createBudgetBtn').addEventListener('click', function() {
-         document.getElementById('budgetForm').style.display = 'block'; // Show the form
+     document.getElementById('createBudgetBtn').addEventListener('click', function () {
+         document.getElementById('budgetForm').style.display = 'block';
      });
 
-     // Handle the budget form submission (Create or Edit)
-     document.getElementById('budgetFormDetails').addEventListener('submit', function(event) {
+     // Handle form submission
+     document.getElementById('budgetFormDetails').addEventListener('submit', function (event) {
          event.preventDefault();
-         
+
          const budgetName = document.getElementById('budget_name').value;
          const monthlyLimit = document.getElementById('monthly_limit').value;
          const savings = document.getElementById('savings').value;
@@ -143,56 +152,75 @@
              if (data.success) {
                  alert('Budget created successfully!');
                  loadBudgets(); // Reload the budget list
-         //document.getElementById('budgetForm').reset(); // Reset the form
+                 document.getElementById('budgetFormDetails').reset(); // Reset the form
              } else {
                  alert('Error: ' + data.message);
              }
          })
          .catch(error => {
+             console.error('Error:', error);
              alert('Error: ' + error.message);
          });
      });
 
-     // Load the existing budgets when the page loads
+     // Load budgets from the database
      function loadBudgets() {
          fetch('load_budgets.php')
              .then(response => response.json())
              .then(data => {
-                 const budgetItems = document.getElementById('budgetItems');
-                 budgetItems.innerHTML = ''; // Clear the current list
+                 const budgetTableBody = document.getElementById('budgetTableBody');
+                 budgetTableBody.innerHTML = ''; // Clear existing rows
                  data.budgets.forEach(budget => {
-                     const li = document.createElement('li');
-                     li.textContent = `${budget.budget_name} - Monthly Limit: ${budget.monthly_limit}`;
-                     const editButton = document.createElement('button');
-                     editButton.textContent = 'Edit';
-                     editButton.addEventListener('click', function() {
-                         editBudget(budget.id);
-                     });
-                     li.appendChild(editButton);
-                     budgetItems.appendChild(li);
+                     const row = document.createElement('tr');
+                     row.innerHTML = `
+                         <td>${budget.budget_name}</td>
+                         <td>${budget.monthly_limit}</td>
+                         <td>${budget.savings}</td>
+                         <td>${budget.reminder_date}</td>
+                         <td>${budget.reminder_threshold}</td>
+                         <td>
+                             <button style="margin-right: 10px;" class="editBtn" onclick="editBudget(${budget.id})">Edit</button>
+                             <button class="deleteBtn" onclick="deleteBudget(${budget.id})">Delete</button>
+                         </td>
+                     `;
+                     budgetTableBody.appendChild(row);
                  });
              })
              .catch(error => alert('Error: ' + error));
      }
 
-     // Edit a specific budget
+     // Edit a budget
      function editBudget(budgetId) {
-         // Fetch the budget data for the specified budgetId
-         fetch(`get_budget.php?id=${budgetId}`)
-             .then(response => response.json())
-             .then(data => {
-                 const budget = data.budget;
-                 document.getElementById('budget_name').value = budget.budget_name;
-                 document.getElementById('monthly_limit').value = budget.monthly_limit;
-                 document.getElementById('savings').value = budget.savings;
-                 document.getElementById('reminder_date').value = budget.reminder_date;
-                 document.getElementById('reminder_threshold').value = budget.reminder_threshold;
-                 document.getElementById('budgetForm').style.display = 'block'; // Show the form
-             })
-             .catch(error => alert('Error: ' + error));
+         window.location.href = `edit_budget.php?id=${budgetId}`;
      }
 
-     // Load the budgets when the page loads
+     // Delete a budget
+    function deleteBudget(budgetId) {
+        if (confirm('Are you sure you want to delete this budget?')) {
+            const formData = new FormData();
+            formData.append('budget_id', budgetId);
+
+            fetch('delete_budget.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Budget deleted successfully!');
+                    loadBudgets(); // Reload the budget list
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            });
+        }
+    }
+
+     // Load budgets when the page loads
      loadBudgets();
    </script>
 

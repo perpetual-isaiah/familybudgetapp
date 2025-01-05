@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `info`
 
-
-
 --
 -- Table structure for table `users`
 --
@@ -73,6 +71,7 @@ CREATE TABLE `family_members` (
 --
 -- Table structure for table `budget`
 --
+
 CREATE TABLE budget (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     user_id INT(11) NOT NULL,
