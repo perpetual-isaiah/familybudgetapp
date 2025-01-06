@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-    <!-- Hidden input to store user ID -->
     <div class="container">
       <aside>
         <div class="top">
@@ -157,7 +156,7 @@
                       <button onclick="toggleExpenseForm(${member.id})">Enter Expense</button>
                       <button onclick="deleteMember(${member.id})">Delete</button>
                       <div id="expense-form-${member.id}" class="hidden">
-                          <form onsubmit="submitExpense(event, ${member.id}, ${member.user_id})">
+                          <form onsubmit="submitExpense(event, ${member.id})">
                           <input type="text" placeholder="Expense Name" id="expense-name-${member.id}" required>
                           <input type="number" placeholder="Expense Price" id="expense-price-${member.id}" required>
                           <select id="theme-${member.id}" required>
@@ -206,24 +205,17 @@
           form.classList.toggle('hidden');
         };
   
-        window.submitExpense = function (event, memberId, userId) {
+        window.submitExpense = function (event, memberId) {
           event.preventDefault();
-          
-          // Fetch userId from the hidden field if it's not passed
-          // if (!userId) {
-          //   userId = document.getElementById('user-id')?.value;
-          // }
-  
+
           const name = document.getElementById(`expense-name-${memberId}`).value;
           const price = document.getElementById(`expense-price-${memberId}`).value;
           const theme = document.getElementById(`theme-${memberId}`).value;
           const details = document.getElementById(`details-${memberId}`).value;
 
-          // Get the userId from the hidden input field
-            // Construct the payload
-          // const payload = { memberId, name, price, theme, details };
-          // console.log("Payload being sent:", payload);
-  
+          // Construct the payload
+          const payload = { memberId, name, price, theme, details };
+
           fetch('add_member_expense.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -245,5 +237,4 @@
       });
     </script>
   </body>
-  
 </html>
