@@ -12,8 +12,17 @@ if (!isset($_SESSION['user_id'])) {
 include('config.php');
 $user_id = $_SESSION['user_id'];
 
-// Query to fetch family members with last_seen
-$result = $db->query("SELECT id, name, relationship FROM family_members WHERE user_id = $user_id");
+// Query to fetch family members with total spending
+$query = "
+    SELECT fm.id, fm.name, fm.relationship, 
+           IFNULL(SUM(e.price), 0) AS total_spendings
+    FROM family_members fm
+    LEFT JOIN expenses e ON fm.id = e.member_id
+    WHERE fm.user_id = $user_id
+    GROUP BY fm.id
+";
+
+$result = $db->query($query);
 
 $family_members = [];
 
@@ -22,6 +31,6 @@ while ($row = $result->fetch_assoc()) {
     $family_members[] = $row;
 }
 
-// Return family members as JSON
+// Return family members with total spending as JSON
 echo json_encode($family_members);
 ?>
