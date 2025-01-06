@@ -1,0 +1,17 @@
+Array
+(
+    [memberId] => 1
+    [name] => SUgar
+    [price] => 35
+    [theme] => Grocery
+    [details] => To add sweetening effect
+)
+Array
+(
+    [memberId] => 1
+    [userId] => <?php echo $_SESSION['userId']; ?>
+    [name] => Verify
+    [price] => 4567
+    [theme] => Entertainment
+    [details] => 
+)

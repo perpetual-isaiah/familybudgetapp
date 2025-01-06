@@ -13,7 +13,7 @@ include('config.php');
 $user_id = $_SESSION['user_id'];
 
 // Query to fetch family members with last_seen
-$result = $db->query("SELECT id, name FROM family_members WHERE user_id = $user_id");
+$result = $db->query("SELECT id, name, relationship FROM family_members WHERE user_id = $user_id");
 
 $family_members = [];
 
