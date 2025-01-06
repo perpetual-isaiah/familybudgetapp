@@ -10,7 +10,6 @@
 </head>
 <body>
     <!-- Hidden input to store user ID -->
-    <input type="hidden" id="user-id" value="<?php echo $_SESSION['userId']; ?>">
     <div class="container">
       <aside>
         <div class="top">
@@ -211,9 +210,9 @@
           event.preventDefault();
           
           // Fetch userId from the hidden field if it's not passed
-          if (!userId) {
-            userId = document.getElementById('user-id')?.value;
-          }
+          // if (!userId) {
+          //   userId = document.getElementById('user-id')?.value;
+          // }
   
           const name = document.getElementById(`expense-name-${memberId}`).value;
           const price = document.getElementById(`expense-price-${memberId}`).value;
@@ -222,8 +221,8 @@
 
           // Get the userId from the hidden input field
             // Construct the payload
-          const payload = { memberId, userId, name, price, theme, details };
-          console.log("Payload being sent:", payload);
+          // const payload = { memberId, name, price, theme, details };
+          // console.log("Payload being sent:", payload);
   
           fetch('add_member_expense.php', {
             method: 'POST',
